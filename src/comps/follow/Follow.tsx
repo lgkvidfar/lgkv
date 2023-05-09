@@ -7,41 +7,49 @@ gsap.registerPlugin(ScrollTrigger)
 
 export interface Props extends HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode
-  endTrigger?: React.RefObject<HTMLDivElement>
+  containerRef: React.RefObject<HTMLDivElement>
   percentage?: number
+  pixels?: number
   scrub?: number | boolean
   toVars?: gsap.TweenVars
   limitSelf?: boolean
   start?: string
+  dir?: 'up' | 'down'
+  speed?: number
 }
 
-export const Pinned = ({
-  endTrigger,
-  percentage = 100,
-  scrub = true,
-  start = 'top top',
+export const Follow = ({
+  containerRef,
+  scrub = 1,
+  start = 'top center',
+  dir = 'down',
+  speed = 1,
   toVars,
   ...props
 }: Props) => {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     let ctx = gsap.context(() => {
+      if (!containerRef.current) return
+      if (!ref.current) return
       const tl = gsap
         .timeline({
           scrollTrigger: {
             trigger: ref.current,
+            endTrigger: containerRef.current,
             start,
             scrub,
-            pin: true,
-            pinSpacing: false,
             markers: true,
             invalidateOnRefresh: true,
-            end: endTrigger ? '' : props.limitSelf ? `+=${percentage}% top` : `+=${percentage}%`,
-            endTrigger: endTrigger?.current,
           },
         })
         .to(ref.current, {
           ...toVars,
+          y:
+            dir === 'down'
+              ? containerRef.current?.clientHeight * speed - ref.current?.clientHeight
+              : -containerRef.current?.clientHeight * speed + ref.current?.clientHeight,
+          ease: 'none',
         })
     })
     return () => ctx.revert() // <-- CLEANUP!
@@ -53,4 +61,4 @@ export const Pinned = ({
   )
 }
 
-export default Pinned
+export default Follow

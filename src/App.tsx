@@ -1,50 +1,30 @@
-import { useRef } from 'react'
-import { ScrollMarq } from './comps/scroll-marq'
+import { useMemo, useRef } from 'react'
+import { HorizScroll } from './comps/horiz-scroll'
 
 function App() {
-  const containerRef = useRef<HTMLDivElement>(null)
+  const ref = useRef<HTMLDivElement>(null)
+
+  const horizScroll = useMemo(() => {
+    return [
+      <div className="w-full h-screen flex-shrink-0 bg-red-200">Hello One </div>,
+      <div className="w-full h-screen flex-shrink-0 bg-red-400">Hello Two</div>,
+    ]
+  }, [])
   return (
-    <main className="h-[300vh] w-full bg-dark relative">
-      <div ref={containerRef} className="h-screen w-full bg-orange-200 relative">
-        <ScrollMarq
-          containerRef={containerRef}
-          dir="left"
-          width={50}
-          className="absolute bottom-[0%] left-0 w-full"
-        >
-          <p className="bg-red-300 ml-[1rem] ">First WELCOME TO MY PORTFOLIO </p>
-          <p className="bg-red-300 ">WELCOME TO MY PORTFOLIO</p>
-          <p className="bg-red-300 ">WELCOME TO MY PORTFOLIO</p>
-          <p className="bg-red-300 ">WELCOME TO MY PORTFOLIO</p>{' '}
-          <p className="bg-red-300 ">WELCOME TO MY PORTFOLIO</p>
-          <p className="bg-red-300 ">WELCOME TO MY PORTFOLIO</p>
-          <p className="bg-red-300 ">WELCOME TO MY PORTFOLIO</p>{' '}
-          <p className="bg-red-300 ">WELCOME TO MY PORTFOLIO</p>
-          <p className="bg-red-300 ">WELCOME TO MY PORTFOLIO</p>
-          <p className="bg-red-300 ">WELCOME TO MY PORTFOLIO</p>
-          <p className="bg-red-300 mr-[1rem]">WELCOME TO MY PORTFOLIO Last</p>
-        </ScrollMarq>
-        <ScrollMarq
-          containerRef={containerRef}
-          dir="right"
-          className="absolute bottom-[30%] left-0 w-full -rotate-12"
-        >
-          <p className="bg-green-200   ml-[1rem] ">First WELCOME TO MY PORTFOLIO </p>
-          <p className="bg-green-300 ">WELCOME TO MY PORTFOLIO</p>
-          <p className="bg-green-300 ">WELCOME TO MY PORTFOLIO</p>
-          <p className="bg-green-300 ">WELCOME TO MY PORTFOLIO</p>
-          <p className="bg-green-300 ">WELCOME TO MY PORTFOLIO</p>{' '}
-          <p className="bg-green-300 ">WELCOME TO MY PORTFOLIO</p>
-          <p className="bg-green-300 ">WELCOME TO MY PORTFOLIO</p>
-          <p className="bg-green-300 ">WELCOME TO MY PORTFOLIO</p>
-          <p className="bg-green-300 ">WELCOME TO MY PORTFOLIO</p>{' '}
-          <p className="bg-green-300 ">WELCOME TO MY PORTFOLIO</p>
-          <p className="bg-green-300 ">WELCOME TO MY PORTFOLIO</p>
-          <p className="bg-green-400  mr-[1rem]">WELCOME TO MY PORTFOLIO Last</p>
-        </ScrollMarq>
+    <main className="h-[400vh] w-full bg-dark relative">
+      <div className="h-screen w-full bg-orange-200 relative flex justify-center items-center  ">
+        <p>Hello World One</p>
+      </div>
+      <div ref={ref} className="h-[200vh] w-full overflow-hidden bg-gray-500 ">
+        <HorizScroll containerRef={ref} childArray={horizScroll} />
       </div>
 
-      <div className="h-screen w-full bg-pink-200 "></div>
+      <div className="h-screen w-full bg-green-200 relative flex justify-center items-center  ">
+        <p>Hello World Three</p>
+      </div>
+      <div className="h-screen w-full bg-blue-200 relative flex justify-center items-center  ">
+        <p>Hello World Three</p>
+      </div>
     </main>
   )
 }

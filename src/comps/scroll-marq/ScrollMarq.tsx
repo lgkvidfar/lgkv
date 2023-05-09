@@ -11,15 +11,16 @@ export interface Props extends HTMLAttributes<HTMLDivElement> {
   dir?: 'left' | 'right'
   scrub?: number | boolean
   percentage?: number
-  width?: number
+  limitSelf?: boolean
+  start?: string
 }
 
 export const ScrollMarq = ({
   containerRef,
   dir = 'left',
   scrub = 1,
+  start = 'top bottom',
   percentage,
-  width = 200,
   ...props
 }: Props) => {
   const ref = useRef<HTMLDivElement>(null)
@@ -31,11 +32,12 @@ export const ScrollMarq = ({
       gsap
         .timeline({
           scrollTrigger: {
-            trigger: containerRef.current,
+            trigger: ref.current,
             scrub,
-            start: 'top top',
-            endTrigger: percentage ? '' : ref.current,
-            end: percentage ? `+=${percentage}%` : '',
+            start,
+            // endTrigger: percentage ? '' : ref.current,
+            // end: endTrigger ? '' : props.limitSelf ? `+=${percentage}% top` : `+=${percentage}%`,
+            // end: percentage ? (props.limitSelf ? '' : `+=${percentage}%`) : '',
             markers: true,
           },
         })

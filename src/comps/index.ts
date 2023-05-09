@@ -4,4 +4,4 @@ export { default as ScrollMarq } from './scroll-marq/ScrollMarq'
 export { default as Follow } from './follow/Follow'
 export { default as HorizScroll } from './horiz-scroll/HorizScroll'
 
-import '../globals.css'
+// import '../globals.css'

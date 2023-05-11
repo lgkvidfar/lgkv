@@ -1,62 +1,46 @@
-import clsx from 'clsx'
-import { HTMLAttributes, useEffect, useRef } from 'react'
+import { HTMLAttributes, ReactNode, useEffect, useRef } from 'react'
 
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { IGsapProps } from 'src/types/IGsapProps'
+import { EasePack } from 'gsap/all'
 gsap.registerPlugin(ScrollTrigger)
 
-export interface Props extends HTMLAttributes<HTMLDivElement> {
-  //   children: React.ReactNode
-  containerRef: React.RefObject<HTMLDivElement>
-  childArray: React.ReactNode[]
-  scrub?: number | boolean
-  toVars?: gsap.TweenVars
-  start?: string
-  snapTo?: number
-  duration?: number
-}
-
 export const HorizScroll = ({
-  containerRef,
+  container,
   scrub = 1,
-  snapTo = 1,
   duration = 0.01,
-  toVars,
+  tovars,
   ...props
-}: Props) => {
+}: IGsapProps) => {
   const ref = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     let ctx = gsap.context(() => {
-      if (!containerRef.current) return
+      if (!container.current) return
       if (!ref.current) return
-      const tl = gsap
-        .timeline({
-          scrollTrigger: {
-            trigger: ref.current,
-            end: 'bottom top',
-            pin: true,
-            pinSpacing: false,
-            scrub,
-            markers: true,
-            invalidateOnRefresh: true,
-            snap: {
-              snapTo,
-              duration,
-              ease: 'power2.inOut',
-            },
+      const current = container.current
+      const childArr = gsap.utils.toArray(ref.current.children)
+      const tl = gsap.to(childArr, {
+        xPercent: -100 * (childArr.length - 1),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: container.current,
+          pin: true,
+          scrub,
+          snap: {
+            snapTo: 1 / (childArr.length - 1),
           },
-        })
-        .to(ref.current, {
-          ...toVars,
-          x: -containerRef.current?.clientWidth,
-          ease: 'none',
-        })
+          end: () => '+=' + current.offsetWidth,
+        },
+      })
     })
     return () => ctx.revert() // <-- CLEANUP!
   }, [])
+
   return (
-    <div ref={ref} {...props} className={clsx('flex w-full h-screen', props.className)}>
-      {props.childArray}
+    <div ref={ref} {...props}>
+      {props.children}
     </div>
   )
 }

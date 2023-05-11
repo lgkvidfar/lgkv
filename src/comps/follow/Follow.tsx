@@ -1,61 +1,70 @@
-import clsx from 'clsx'
 import { HTMLAttributes, useEffect, useRef } from 'react'
 
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { IGsapProps } from 'src/types/IGsapProps'
 gsap.registerPlugin(ScrollTrigger)
 
-export interface Props extends HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode
-  containerRef: React.RefObject<HTMLDivElement>
-  percentage?: number
-  pixels?: number
-  scrub?: number | boolean
-  toVars?: gsap.TweenVars
-  limitSelf?: boolean
-  start?: string
-  dir?: 'up' | 'down'
-  speed?: number
-}
-
 export const Follow = ({
-  containerRef,
+  container,
   scrub = 1,
   start = 'top center',
+  end,
   dir = 'down',
-  speed = 1,
-  toVars,
+  tovars,
+  percentage,
   ...props
-}: Props) => {
+}: IGsapProps) => {
   const ref = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     let ctx = gsap.context(() => {
-      if (!containerRef.current) return
+      if (!container.current) return
       if (!ref.current) return
+
+      const containerHeight = container.current.clientHeight
+      const containerTop = container.current.offsetTop
+      const containerBottom = containerTop + containerHeight
+
+      const refHeight = ref.current.clientHeight
+      const refTop = ref.current.offsetTop
+      const refBottom = refTop + refHeight
+
+      const pxTilBottom = containerBottom - refBottom - containerHeight
+
+      const pxTilTop = containerTop - refTop - refHeight
+      const pxTilTopWeird = refTop - containerTop - refHeight
+
       const tl = gsap
         .timeline({
           scrollTrigger: {
-            trigger: ref.current,
-            endTrigger: containerRef.current,
+            trigger: container.current,
             start,
+            end,
             scrub,
-            markers: true,
+            markers: props.markers === 'true' ? true : false,
             invalidateOnRefresh: true,
           },
         })
         .to(ref.current, {
-          ...toVars,
+          ...tovars,
           y:
             dir === 'down'
-              ? containerRef.current?.clientHeight * speed - ref.current?.clientHeight
-              : -containerRef.current?.clientHeight * speed + ref.current?.clientHeight,
-          ease: 'none',
+              ? props.land === 'true'
+                ? pxTilBottom
+                : props.toy
+              : props.land === 'true'
+              ? pxTilTop !== 0
+                ? -pxTilTop
+                : pxTilTopWeird
+              : props.toy,
         })
     })
     return () => ctx.revert() // <-- CLEANUP!
   }, [])
+
   return (
-    <div ref={ref} {...props} className={clsx('', props.className)}>
+    <div ref={ref} {...props}>
       {props.children}
     </div>
   )

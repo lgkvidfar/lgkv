@@ -1,53 +1,53 @@
-import clsx from 'clsx'
 import { HTMLAttributes, useEffect, useRef } from 'react'
 
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { IGsapProps } from 'src/types/IGsapProps'
 gsap.registerPlugin(ScrollTrigger)
 
-export interface Props extends HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode
-  endTrigger?: React.RefObject<HTMLDivElement>
-  percentage?: number
-  scrub?: number | boolean
-  toVars?: gsap.TweenVars
-  limitSelf?: boolean
-  start?: string
-}
-
 export const Pinned = ({
-  endTrigger,
+  container,
   percentage = 100,
-  scrub = true,
   start = 'top top',
-  toVars,
+  tovars,
   ...props
-}: Props) => {
+}: IGsapProps) => {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     let ctx = gsap.context(() => {
+      if (!container.current) return
+      if (!ref.current) return
+
+      const containerHeight = container.current.clientHeight
+      const containerTop = container.current.offsetTop
+      const containerBottom = containerTop + containerHeight
+
+      const refHeight = ref.current.clientHeight
+      const refTop = ref.current.offsetTop
+      const refBottom = refTop + refHeight
+
+      const pxTilBottom = containerBottom - refBottom - containerHeight
+
       const tl = gsap
         .timeline({
           scrollTrigger: {
             trigger: ref.current,
             start,
-            scrub,
             pin: true,
             pinSpacing: false,
-            markers: true,
+            end: props.land === 'true' ? `${pxTilBottom}` : `${percentage}%`,
+            markers: props.markers === 'true' ? true : false,
             invalidateOnRefresh: true,
-            end: endTrigger ? '' : props.limitSelf ? `+=${percentage}% top` : `+=${percentage}%`,
-            endTrigger: endTrigger?.current,
           },
         })
         .to(ref.current, {
-          ...toVars,
+          ...tovars,
         })
     })
     return () => ctx.revert() // <-- CLEANUP!
   }, [])
   return (
-    <div ref={ref} {...props} className={clsx('', props.className)}>
+    <div ref={ref} {...props}>
       {props.children}
     </div>
   )
